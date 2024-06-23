@@ -1,8 +1,9 @@
-import { useState } from 'react';
-import { useRouter } from 'next/router';
+import { useState } from "react";
+import { useRouter } from "next/router";
+import { signIn } from "next-auth/react";
 
-import { useFlashMessage } from '../../hooks/flash-message';
-import classes from './auth-form.module.css';
+import { useFlashMessage } from "../../hooks/flash-message";
+import classes from "./auth-form.module.css";
 
 function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
@@ -19,25 +20,35 @@ function AuthForm() {
 
     const formData = new FormData(event.target);
 
-    const email = formData.get('email');
-    const password = formData.get('password');
+    const email = formData.get("email");
+    const password = formData.get("password");
 
     if (isLogin) {
-      setFlashMessage('You are now logged in');
-      router.push('/profile');
+      const result = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+      });
+
+      if (!result.error) {
+        setFlashMessage("You are now logged in");
+        router.push("/profile");
+      } else {
+        setFlashMessage(result.error);
+      }
     } else {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
         body: JSON.stringify({ email, password }),
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
       if (response.ok) {
         // Assuming signup and automatic login are successful, redirect to profile page
-        setFlashMessage('You are now signed up');
-        router.push('/profile');
+        setFlashMessage("You are now signed up");
+        router.push("/profile");
       } else {
         try {
           const data = await response.json();
@@ -51,24 +62,24 @@ function AuthForm() {
 
   return (
     <section className={classes.auth}>
-      <h1>{isLogin ? 'Login' : 'Sign Up'}</h1>
+      <h1>{isLogin ? "Login" : "Sign Up"}</h1>
       <form onSubmit={handleSubmit}>
         <div className={classes.control}>
-          <label htmlFor='email'>Your Email</label>
-          <input type='email' name="email" required />
+          <label htmlFor="email">Your Email</label>
+          <input type="email" name="email" required />
         </div>
         <div className={classes.control}>
-          <label htmlFor='password'>Your Password</label>
-          <input type='password' name="password" required />
+          <label htmlFor="password">Your Password</label>
+          <input type="password" name="password" required />
         </div>
         <div className={classes.actions}>
-          <button>{isLogin ? 'Login' : 'Create Account'}</button>
+          <button>{isLogin ? "Login" : "Create Account"}</button>
           <button
-            type='button'
+            type="button"
             className={classes.toggle}
             onClick={switchAuthModeHandler}
           >
-            {isLogin ? 'Create new account' : 'Login with existing account'}
+            {isLogin ? "Create new account" : "Login with existing account"}
           </button>
         </div>
       </form>
