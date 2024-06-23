@@ -39,8 +39,12 @@ function AuthForm() {
         setFlashMessage('You are now signed up');
         router.push('/profile');
       } else {
-        // Handle errors or unsuccessful signup
-        setFlashMessage('Signup failed');
+        try {
+          const data = await response.json();
+          setFlashMessage(data.message);
+        } catch (error) {
+          setFlashMessage(error.message);
+        }
       }
     }
   }

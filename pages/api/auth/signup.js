@@ -1,4 +1,4 @@
-import { insertDocument } from "../../../lib/mongodb"
+import { insertDocument, findDocument } from "../../../lib/mongodb"
 import { hashPassword } from "../../../lib/auth";
 
 export default async function handler(req, res) {
@@ -14,6 +14,11 @@ export default async function handler(req, res) {
     // Basic password validation - minimum 8 characters
     if (!password || password.length < 6) {
       return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    }
+
+    const response = await findDocument('users', { email });
+    if (response.success) {
+      return res.status(409).json({ message: 'Email already in use' });
     }
 
     const hashedPassword = await hashPassword(password)
