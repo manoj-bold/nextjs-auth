@@ -32,7 +32,7 @@ function AuthForm() {
 
       if (!result.error) {
         setFlashMessage("You are now logged in");
-        router.push("/profile");
+        router.replace("/profile");
       } else {
         setFlashMessage(result.error);
       }
@@ -48,7 +48,7 @@ function AuthForm() {
       if (response.ok) {
         // Assuming signup and automatic login are successful, redirect to profile page
         setFlashMessage("You are now signed up");
-        router.push("/profile");
+        router.replace("/auth");
       } else {
         try {
           const data = await response.json();
